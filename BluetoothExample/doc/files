@@ -1,0 +1,102 @@
+监听蓝牙相关的广播并获得相关的信息，蓝牙相关的广播主要集中在BluetoothAdapter和BluetoothDevice类中，
+可以通过在AndroidManifest.xml中注册静态广播，也可以通过在代码中注册动态广播，两种形式的广播都可以监听到
+需要相关的权限
+
+<uses-permission android:name="android.permission.BLUETOOTH" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+1、蓝牙开关状态的广播====================================================================
+蓝牙的开关状态
+
+  int STATE_OFF = 10; //蓝牙关闭
+  int STATE_ON = 12; //蓝牙打开
+  int STATE_TURNING_OFF = 13; //蓝牙正在关闭
+  int STATE_TURNING_ON = 11; //蓝牙正在打开
+对应的广播
+
+  String ACTION_STATE_CHANGED = "android.bluetooth.adapter.action.STATE_CHANGED"
+监听到这个广播之后,通过intent中的EXTRA_STATE获取对应的状态值
+
+  int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,BluetoothAdapter.STATE_OFF);
+2、打开蓝牙的广播====================================================================
+可以通过广播调用系统的activity来打开蓝牙，对应的广播
+
+  String ACTION_REQUEST_ENABLE = "android.bluetooth.adapter.action.REQUEST_ENABLE";
+  Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+  startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+执行这个广播之后，可以通过监听广播ACTION_STATE_CHANGED,来判断蓝牙是否打开
+
+3、蓝牙扫描的广播====================================================================
+打开蓝牙之后，可以通过方法startDiscovery(),来扫描设备周边可以使用的其他的蓝牙设备，这个方法会触发下面的广播
+
+  String ACTION_DISCOVERY_STARTED = "android.bluetooth.adapter.action.DISCOVERY_STARTED";  //开始扫描
+  String ACTION_DISCOVERY_FINISHED = "android.bluetooth.adapter.action.DISCOVERY_FINISHED"; //扫描结束
+如果扫描到可用的设备，还会触发广播
+
+  String ACTION_FOUND = "android.bluetooth.device.action.FOUND" //属于类 `BluetoothDevice`
+注意在6.0之后的设备，如果想监听这个广播，还必须添加权限
+
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+在应用中申请
+
+  ActivityCompat.requestPermissions(this,new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.ACCESS_FINE_LOCATION},2);
+不然在6.0之后的设备中监听不到这个广播
+
+监听到广播ACTION_FOUND,可用获得设备相关的信息
+
+  BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+  String name = device.getName();
+  String addr = device.getAddress();  //还有其他相关的信息
+
+4、获得设备的UUID的广播====================================================================
+在扫描到设备之后，可用调用方法fetchUuidsWithSdp(),调用这个方法会触发这个广播
+
+  String ACTION_UUID = "android.bluetooth.device.action.UUID";
+通过intent中的EXTRA_UUID,获取设备的UUID
+
+  Parcelable[] uuidExtra = intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID);
+  for (int i=0; i<uuidExtra.length; i++) {
+       String uuid = uuidExtra[i].toString();
+  }
+5、蓝牙配对的广播====================================================================
+有蓝牙设备的配对请求时，会监听到这个广播
+
+  String ACTION_PAIRING_REQUEST = "android.bluetooth.device.action.PAIRING_REQUEST";
+蓝牙配对状态的广播
+在进行配对时，可用通过监听配对的状态判断设备是否已经配对成功
+配对的状态值
+
+  int BOND_NONE = 10; //配对没有成功
+  int BOND_BONDING = 11; //配对中
+  int BOND_BONDED = 12; //配对成功
+广播
+
+  String ACTION_BOND_STATE_CHANGED = "android.bluetooth.device.action.BOND_STATE_CHANGED";
+获取值
+
+  int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.BOND_NONE); //当前的配对的状态
+  int state = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.BOND_NONE); //前一次的配对状态
+  BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE); //配对的设备信息
+
+6、蓝牙连接状态的广播====================================================================
+配对之后，连接设备可以通过监听下面的广播，判断设备是否连接成功
+
+连接的状态值
+
+  int STATE_DISCONNECTED = 0; //未连接
+  int STATE_CONNECTING = 1; //连接中
+  int STATE_CONNECTED = 2; //连接成功
+广播
+
+  String ACTION_CONNECTION_STATE_CHANGED = "android.bluetooth.adapter.action.CONNECTION_STATE_CHANGED";
+获取值
+
+  int state = intent.getIntExtra(BluetoothAdapter.EXTRA_CONNECTION_STATE, BluetoothAdapter.ERROR); //当前的连接状态
+  int state = intent.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_CONNECTION_STATE, BluetoothAdapter.ERROR); //前一次的连接状态
+  BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE); //连接的设备信息
+
+7、蓝牙设备的名字变化的广播====================================================================
+  String ACTION_LOCAL_NAME_CHANGED = "android.bluetooth.adapter.action.LOCAL_NAME_CHANGED" ; //本地设备的蓝牙设备的名称变化 `BluetoothAdapter`
+  String ACTION_NAME_CHANGED = "android.bluetooth.device.action.NAME_CHANGED" ;// 远程设备的名称的
