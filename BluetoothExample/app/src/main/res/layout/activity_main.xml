@@ -4,17 +4,47 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Button
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="onOpenBlueTooth"
-        android:text="打开蓝牙方式1" />
+        android:layout_height="wrap_content">
 
-    <Button
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="onOpenBlueTooth"
+            android:text="打开蓝牙方式1" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="onOpenBlueTooth2Broadcast"
+            android:text="打开蓝牙方式2" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="onOpenBlueTooth2Broadcast"
-        android:text="打开蓝牙方式2" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_startDiscovery"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="onStartDiscovery"
+            android:text="开始扫描" />
+
+        <Button
+            android:id="@+id/btn_cancelDiscovery"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="onCancelDiscovery"
+            android:text="停止扫描" />
+    </LinearLayout>
 
     <Button
         android:layout_width="match_parent"

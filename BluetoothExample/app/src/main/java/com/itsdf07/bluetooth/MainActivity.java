@@ -95,13 +95,35 @@ public class MainActivity extends AppCompatActivity {
         //蓝牙配对的广播
         intentFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
 
-
         //蓝牙扫描状态(SCAN_MODE)发生改变
         intentFilter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
 
         registerReceiver(mBluetoothReceiver, intentFilter);
     }
 
+    /**
+     * 蓝牙设备搜索
+     *
+     * @param view
+     */
+    public void onStartDiscovery(View view) {
+        mBluetoothAdapter.startDiscovery();
+    }
+
+    /**
+     * 取消设备搜索
+     *
+     * @param view
+     */
+    public void onCancelDiscovery(View view) {
+        mBluetoothAdapter.cancelDiscovery();
+    }
+
+    /**
+     * 打开蓝牙开关
+     *
+     * @param view
+     */
     public void onOpenBlueTooth(View view) {
         mBlueToothState = mBluetoothAdapter.isEnabled();
         if (mBlueToothState) {
@@ -112,6 +134,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 关闭蓝牙开关
+     *
+     * @param view
+     */
     public void onCloseBlueTooth(View view) {
         mBlueToothState = mBluetoothAdapter.isEnabled();
         if (mBlueToothState) {
