@@ -127,10 +127,9 @@ public class MainActivity extends AppCompatActivity {
     public void onOpenBlueTooth(View view) {
         mBlueToothState = mBluetoothAdapter.isEnabled();
         if (mBlueToothState) {
-            Toast.makeText(this, "蓝牙已经打开", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, TranslateUtils.getBluetoothStateTip(BluetoothAdapter.STATE_ON), Toast.LENGTH_SHORT).show();
         } else {
             mBluetoothAdapter.enable();
-            Toast.makeText(this, "正在打开..", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -143,9 +142,8 @@ public class MainActivity extends AppCompatActivity {
         mBlueToothState = mBluetoothAdapter.isEnabled();
         if (mBlueToothState) {
             mBluetoothAdapter.disable();
-            Toast.makeText(this, "正在关闭.", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "蓝牙已经关闭!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, TranslateUtils.getBluetoothStateTip(BluetoothAdapter.STATE_OFF), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -157,13 +155,12 @@ public class MainActivity extends AppCompatActivity {
     public void onOpenBlueTooth2Broadcast(View view) {
         mBlueToothState = mBluetoothAdapter.isEnabled();
         if (mBlueToothState) {
-            Toast.makeText(this, "蓝牙已经打开", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, TranslateUtils.getBluetoothStateTip(BluetoothAdapter.STATE_ON), Toast.LENGTH_SHORT).show();
         } else {
             //通过广播调用系统的activity来打开蓝牙
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivity(intent);
         }
-
     }
 
     private BluetoothProfile.ServiceListener mProfileListener = new BluetoothProfile.ServiceListener() {
@@ -218,10 +215,25 @@ public class MainActivity extends AppCompatActivity {
             } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action))//蓝牙开关状态的广播
             {
                 int bluetoothState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF);
+                Toast.makeText(MainActivity.this, TranslateUtils.getBluetoothStateTip(bluetoothState), Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "onReceive：当前蓝牙开关状态 = " + bluetoothState + "," + TranslateUtils.getBluetoothStateTip(bluetoothState));
+                switch (bluetoothState) {
+                    case BluetoothAdapter.STATE_OFF://蓝牙已关闭
+                        mBluetoothAdapter.getProfileProxy(getApplicationContext(), mProfileListener, BluetoothProfile.HEADSET);
+                        break;
+                    case BluetoothAdapter.STATE_TURNING_ON://蓝牙打开中
+                        break;
+                    case BluetoothAdapter.STATE_ON://蓝牙已打开
+                        break;
+                    case BluetoothAdapter.STATE_TURNING_OFF://蓝牙关闭中
+                        break;
+                    default:
+                        break;
+                }
             } else if (BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED.equals(action))//蓝牙连接状态的广播
             {
                 int headsetState = intent.getIntExtra(BluetoothHeadset.EXTRA_STATE, BluetoothHeadset.STATE_CONNECTED);
+                Toast.makeText(MainActivity.this, TranslateUtils.getBluetoothHeadsetStateTip(headsetState), Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "onReceive：当前蓝牙连接状态 = " + headsetState);
                 switch (headsetState) {
                     case BluetoothHeadset.STATE_CONNECTED://连接成功
@@ -238,10 +250,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action))//蓝牙扫描的广播：开始
             {
+                Toast.makeText(MainActivity.this, "设备搜索中", Toast.LENGTH_SHORT).show();
 
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action))//蓝牙扫描的广播：结束
             {
-
+                Toast.makeText(MainActivity.this, "设备搜索结束", Toast.LENGTH_SHORT).show();
             } else if (BluetoothDevice.ACTION_FOUND.equals(action))//用BroadcastReceiver来取得搜索结果
             {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
