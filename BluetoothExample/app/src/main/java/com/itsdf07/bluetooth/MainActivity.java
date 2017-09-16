@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initView() {
         mDeviceInfo = (ListView) findViewById(R.id.lv_device);
-        mDeviceAdapter = new DeviceAdapter(this,mDeviceData);
+        mDeviceAdapter = new DeviceAdapter(this, mDeviceData);
         mDeviceInfo.setAdapter(mDeviceAdapter);
     }
 
@@ -283,10 +283,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (mDeviceAdapter != null) {
                     mDeviceAdapter.setData(mDeviceData);
                 }
-                Log.d(TAG, "onReceive：deviceName = " + bean.getDeviceName() + ",deviceAddress = " + bean.getDeviceMac());
-
+                Log.d(TAG, "onReceive：bondState = " + device.getBondState() + "deviceName = " + bean.getDeviceName() + ",deviceAddress = " + bean.getDeviceMac());
+                if ("71:01:10:10:01:01".equals(bean.getDeviceMac())) {
+                    if (device.getBondState() == BluetoothDevice.BOND_NONE) {
+                        Log.d(TAG, "onReceive：bondState === " + device.getBondState() + "deviceName = " + bean.getDeviceName() + ",deviceAddress = " + bean.getDeviceMac());
+                        try {
+                            //通过工具类ClsUtils,调用createBond方法
+                            ClsUtils.createBond(device.getClass(), device);
+                        } catch (Exception e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                }
             } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action))//蓝牙配对的广播
             {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                Toast.makeText(MainActivity.this, device.getAddress() + "配对成功", Toast.LENGTH_SHORT).show();
 
             } else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(action))//蓝牙扫描状态(SCAN_MODE)发生改变
             {
