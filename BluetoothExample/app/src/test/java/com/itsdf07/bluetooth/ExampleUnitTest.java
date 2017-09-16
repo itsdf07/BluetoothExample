@@ -1,4 +1,4 @@
-package com.itsdf07.bluetoot;
+package com.itsdf07.bluetooth;
 
 import org.junit.Test;
 
