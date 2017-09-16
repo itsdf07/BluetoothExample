@@ -52,4 +52,9 @@
         android:onClick="onCloseBlueTooth"
         android:text="关闭蓝牙" />
 
+    <ListView
+        android:id="@+id/lv_device"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 </LinearLayout>

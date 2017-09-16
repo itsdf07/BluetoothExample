@@ -15,8 +15,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,7 +35,7 @@ import java.util.List;
  * ACTION_FOUND  (该常量字段位于BluetoothDevice类中，稍后讲到)
  * 说明：蓝牙扫描时，扫描到任一远程蓝牙设备时，会发送此广播。
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "dfsu-bluetooth";
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothHeadset mBluetoothHeadset;
@@ -42,11 +44,22 @@ public class MainActivity extends AppCompatActivity {
      */
     private boolean mBlueToothState;
 
+    private ListView mDeviceInfo;
+    private DeviceAdapter mDeviceAdapter;
+    ArrayList<DeviceBean> mDeviceData = new ArrayList();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initView();
         initBlueTooth();
+    }
+
+    private void initView() {
+        mDeviceInfo = (ListView) findViewById(R.id.lv_device);
+        mDeviceAdapter = new DeviceAdapter(this,mDeviceData);
+        mDeviceInfo.setAdapter(mDeviceAdapter);
     }
 
     private void initBlueTooth() {
@@ -255,12 +268,22 @@ public class MainActivity extends AppCompatActivity {
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action))//蓝牙扫描的广播：结束
             {
                 Toast.makeText(MainActivity.this, "设备搜索结束", Toast.LENGTH_SHORT).show();
+                if (mDeviceData != null) {
+                    mDeviceData.clear();
+                }
             } else if (BluetoothDevice.ACTION_FOUND.equals(action))//用BroadcastReceiver来取得搜索结果
             {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                String name = device.getName();
-                String addr = device.getAddress();  //还有其他相关的信息
-                Log.d(TAG, "onReceive：deviceName = " + name + ",deviceAddress = " + addr);
+                DeviceBean bean = new DeviceBean();
+                bean.setDeviceName(device.getName());
+                bean.setDeviceMac(device.getAddress());
+                if (mDeviceData != null) {
+                    mDeviceData.add(bean);
+                }
+                if (mDeviceAdapter != null) {
+                    mDeviceAdapter.setData(mDeviceData);
+                }
+                Log.d(TAG, "onReceive：deviceName = " + bean.getDeviceName() + ",deviceAddress = " + bean.getDeviceMac());
 
             } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action))//蓝牙配对的广播
             {
@@ -273,4 +296,8 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    @Override
+    public void onClick(View view) {
+
+    }
 }
